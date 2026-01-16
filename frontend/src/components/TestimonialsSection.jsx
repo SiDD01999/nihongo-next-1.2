@@ -5,47 +5,57 @@ import { ChevronLeft, ChevronRight, Quote, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
+const testimonials = [
+  {
+    name: 'Satyam',
+    course: 'JLPT N5',
+    rating: 5,
+    text: 'Nihongo Next made learning Japanese so much easier than I expected. The teachers are patient and the structured approach helped me build a strong foundation quickly.',
+  },
+  {
+    name: 'Sahil',
+    course: 'JLPT N4',
+    rating: 5,
+    text: 'The personalized attention and flexible online classes fit perfectly into my work schedule. I passed JLPT N4 on my first attempt thanks to their excellent guidance!',
+  },
+  {
+    name: 'Anuroop',
+    course: 'JLPT N3',
+    rating: 5,
+    text: 'What sets Nihongo Next apart is their focus on building confidence. The interactive sessions and cultural insights made every class engaging and memorable.',
+  },
+  {
+    name: 'Arushi',
+    course: 'JLPT N5',
+    rating: 5,
+    text: 'As a complete beginner, I was nervous about learning Japanese. But the friendly environment and clear teaching style made it enjoyable from day one!',
+  },
+  {
+    name: 'Rohan',
+    course: 'JLPT N4',
+    rating: 5,
+    text: 'The combination of grammar drills, conversation practice, and cultural context creates a well-rounded learning experience. Highly recommend for serious learners!',
+  },
+];
+
 export const TestimonialsSection = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const testimonials = [
-    {
-      name: 'Satyam',
-      course: 'JLPT N5',
-      rating: 5,
-      text: 'Nihongo Next made learning Japanese so much easier than I expected. The teachers are patient and the structured approach helped me build a strong foundation quickly.',
-    },
-    {
-      name: 'Sahil',
-      course: 'JLPT N4',
-      rating: 5,
-      text: 'The personalized attention and flexible online classes fit perfectly into my work schedule. I passed JLPT N4 on my first attempt thanks to their excellent guidance!',
-    },
-    {
-      name: 'Anuroop',
-      course: 'JLPT N3',
-      rating: 5,
-      text: 'What sets Nihongo Next apart is their focus on building confidence. The interactive sessions and cultural insights made every class engaging and memorable.',
-    },
-    {
-      name: 'Arushi',
-      course: 'JLPT N5',
-      rating: 5,
-      text: 'As a complete beginner, I was nervous about learning Japanese. But the friendly environment and clear teaching style made it enjoyable from day one!',
-    },
-    {
-      name: 'Rohan',
-      course: 'JLPT N4',
-      rating: 5,
-      text: 'The combination of grammar drills, conversation practice, and cultural context creates a well-rounded learning experience. Highly recommend for serious learners!',
-    },
-  ];
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+
+  const handleNext = React.useCallback(() => {
+    setDirection(1);
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+  }, []);
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
 
   // Auto-rotate testimonials
   useEffect(() => {
@@ -53,17 +63,7 @@ export const TestimonialsSection = () => {
       handleNext();
     }, 5000);
     return () => clearInterval(timer);
-  }, [currentIndex]);
-
-  const handleNext = () => {
-    setDirection(1);
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-  };
-
-  const handlePrev = () => {
-    setDirection(-1);
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
+  }, [currentIndex, handleNext]);
 
   const variants = {
     enter: (direction) => ({
@@ -128,7 +128,7 @@ export const TestimonialsSection = () => {
                 <Card className={`border-border h-full ${index === 0 ? 'shadow-lg' : 'shadow-sm'}`}>
                   <CardContent className="p-8">
                     <Quote className="w-10 h-10 text-primary/20 mb-4" />
-                    
+
                     {/* Rating */}
                     <div className="flex space-x-1 mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
@@ -178,7 +178,7 @@ export const TestimonialsSection = () => {
                 <Card className="border-border shadow-lg h-full">
                   <CardContent className="p-8 flex flex-col h-full">
                     <Quote className="w-10 h-10 text-primary/20 mb-4" />
-                    
+
                     {/* Rating */}
                     <div className="flex space-x-1 mb-4">
                       {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
@@ -230,11 +230,10 @@ export const TestimonialsSection = () => {
                     setDirection(index > currentIndex ? 1 : -1);
                     setCurrentIndex(index);
                   }}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    index === currentIndex
+                  className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
                       ? 'w-8 bg-primary'
                       : 'w-2 bg-border hover:bg-muted-foreground'
-                  }`}
+                    }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}
