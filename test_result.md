@@ -167,9 +167,9 @@ frontend:
 
   - task: "Contact Form Testing"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/components/ContactSection.jsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -179,6 +179,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "✅ Contact form working as expected: Form accepts input for name, phone, email, course selection dropdown works, form submission shows proper error message 'Failed to submit request. Please try again or contact us directly.' due to placeholder EmailJS key - this is the expected behavior"
+        - working: false
+        - agent: "testing"
+        - comment: "❌ CRITICAL: EmailJS contact form failing with 400 error. Real public key (vbM1TMapVB8MrBlsn) is configured but Service ID 'service_f5b4ngf' and Template ID 'callback_request_template' are not properly set up in EmailJS dashboard. Form validation works, UI renders correctly, but email submission fails with EmailJSResponseStatus error. Console shows 'Failed to load resource: the server responded with a status of 400' from api.emailjs.com. REQUIRES EmailJS dashboard configuration."
 
   - task: "Footer Testing"
     implemented: true
