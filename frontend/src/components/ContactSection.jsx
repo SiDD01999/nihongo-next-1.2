@@ -59,7 +59,7 @@ export const ContactSection = () => {
       // Send email using EmailJS
       await emailjs.send(
         "service_f5b4ngf",
-        "callback_request_template",
+        "callback_request_temp",
         {
           name: formData.name,
           phone: formData.phone,
