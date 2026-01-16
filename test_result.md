@@ -219,10 +219,12 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus: 
+    - "Contact Form Testing"
+  stuck_tasks:
+    - "Contact Form Testing"
   test_all: false
-  test_priority: "completed"
+  test_priority: "stuck_first"
 
 agent_communication:
     - agent: "testing"
