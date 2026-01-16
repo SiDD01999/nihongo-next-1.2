@@ -54,7 +54,7 @@ export const ContactSection = () => {
 
     try {
       // Initialize EmailJS with your public key
-      emailjs.init("YOUR_PUBLIC_KEY"); // TODO: Replace with actual public key
+      emailjs.init("vbM1TMapVB8MrBlsn");
 
       // Send email using EmailJS
       await emailjs.send(
