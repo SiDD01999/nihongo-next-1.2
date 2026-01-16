@@ -244,10 +244,15 @@ export const ContactSection = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Phone</h3>
-                      <p className="text-sm text-muted-foreground">Available Mon-Sat, 10 AM - 7 PM</p>
-                      <a href="tel:+919876543210" className="text-primary hover:underline font-medium">
-                        +91 98765 43210
-                      </a>
+                      <p className="text-sm text-muted-foreground mb-1">Available Mon-Sat, 10 AM - 7 PM</p>
+                      <div className="flex flex-col space-y-1">
+                        <a href="tel:+919805052048" className="text-primary hover:underline font-medium">
+                          +91 98050 52048
+                        </a>
+                        <a href="tel:+918629027005" className="text-primary hover:underline font-medium">
+                          +91 86290 27005
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

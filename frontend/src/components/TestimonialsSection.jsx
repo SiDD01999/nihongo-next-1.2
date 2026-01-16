@@ -13,7 +13,7 @@ export const TestimonialsSection = () => {
 
   const testimonials = [
     {
-      name: 'Siddharth',
+      name: 'Satyam',
       course: 'JLPT N5',
       rating: 5,
       text: 'Nihongo Next made learning Japanese so much easier than I expected. The teachers are patient and the structured approach helped me build a strong foundation quickly.',

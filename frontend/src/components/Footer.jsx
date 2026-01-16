@@ -19,11 +19,11 @@ export const Footer = () => {
           {/* Brand Section */}
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-md">
-                <span className="text-primary-foreground font-bold text-xl font-serif">
-                  日
-                </span>
-              </div>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_nihongo-studio/artifacts/3dxeu67p_logo.png" 
+                alt="Nihongo Next Logo"
+                className="h-12 w-auto object-contain"
+              />
               <div className="flex flex-col">
                 <span className="font-serif font-bold text-xl text-secondary-foreground">
                   Nihongo Next
@@ -117,8 +117,13 @@ export const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="tel:+919876543210" className="hover:text-primary transition-colors">
-                  +91 98765 43210
+                <a href="tel:+919805052048" className="hover:text-primary transition-colors">
+                  +91 98050 52048
+                </a>
+              </li>
+              <li>
+                <a href="tel:+918629027005" className="hover:text-primary transition-colors">
+                  +91 86290 27005
                 </a>
               </li>
               <li className="pt-2">

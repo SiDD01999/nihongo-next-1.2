@@ -45,11 +45,11 @@ export const Header = () => {
             className="flex items-center space-x-3 cursor-pointer"
             onClick={() => scrollToSection('hero')}
           >
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-md">
-              <span className="text-primary-foreground font-bold text-xl font-serif">
-                日
-              </span>
-            </div>
+            <img 
+              src="https://customer-assets.emergentagent.com/job_nihongo-studio/artifacts/3dxeu67p_logo.png" 
+              alt="Nihongo Next Logo"
+              className="h-12 w-auto object-contain"
+            />
             <div className="flex flex-col">
               <span className="font-serif font-bold text-xl text-foreground">
                 Nihongo Next

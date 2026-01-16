@@ -24,7 +24,7 @@ export const CoursesSection = () => {
       level: 'JLPT N5',
       title: 'Beginner Foundation',
       description: 'Perfect for absolute beginners starting their Japanese journey.',
-      duration: '3-4 months',
+      duration: '2-3 months',
       badge: 'Most Popular',
       badgeColor: 'bg-primary text-primary-foreground',
       outcomes: [
@@ -39,7 +39,7 @@ export const CoursesSection = () => {
       level: 'JLPT N4',
       title: 'Elementary Proficiency',
       description: 'Expand your skills and build conversational confidence.',
-      duration: '4-5 months',
+      duration: '3-4 months',
       badge: 'Recommended',
       badgeColor: 'bg-accent text-accent-foreground',
       outcomes: [
@@ -54,7 +54,7 @@ export const CoursesSection = () => {
       level: 'JLPT N3',
       title: 'Intermediate Mastery',
       description: 'Achieve fluency for professional and academic contexts.',
-      duration: '5-6 months',
+      duration: '4-5 months',
       badge: 'Advanced',
       badgeColor: 'bg-secondary text-secondary-foreground',
       outcomes: [
