@@ -101,7 +101,7 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border animate-slide-in bg-background/95 backdrop-blur-md shadow-lg">
+          <div className="md:hidden fixed top-20 left-0 right-0 bottom-0 bg-background/70 backdrop-blur-md animate-slide-in z-40 p-4">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <button
