@@ -33,8 +33,8 @@ export const Header = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? 'bg-background/95 backdrop-blur-md shadow-md'
-          : 'bg-transparent'
+        ? 'bg-background/95 backdrop-blur-md shadow-md'
+        : 'bg-transparent'
         }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -101,7 +101,7 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border animate-slide-in bg-background shadow-lg">
+          <div className="md:hidden py-4 border-t border-border animate-slide-in bg-background/95 backdrop-blur-md shadow-lg">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <button
