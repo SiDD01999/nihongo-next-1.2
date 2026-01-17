@@ -103,7 +103,7 @@ export const Header = () => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div
-            className="md:hidden fixed top-20 left-0 right-0 bottom-0 fluted-glass animate-slide-in z-40 p-4"
+            className="md:hidden fixed top-20 left-0 right-0 bottom-0 bg-background animate-slide-in z-40 p-4"
           >
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
