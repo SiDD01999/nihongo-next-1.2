@@ -78,7 +78,7 @@ module.exports = {
                                         to: { opacity: '1', transform: 'translateY(0)' }
                                 },
                                 'slide-in': {
-                                        from: { transform: 'translateX(-100%)' },
+                                        from: { transform: 'translateX(100%)' },
                                         to: { transform: 'translateX(0)' }
                                 },
                                 'float': {
