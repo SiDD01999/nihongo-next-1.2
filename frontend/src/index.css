@@ -19,65 +19,65 @@ code {
 @layer base {
     :root {
         /* Japanese Minimal Design System - Warm & Subtle */
-        
+
         /* Base Colors */
         --background: 0 0% 100%;
         --foreground: 240 80% 15%;
-        
+
         /* Card System */
         --card: 0 0% 99%;
         --card-foreground: 240 80% 15%;
-        
+
         /* Popover */
         --popover: 0 0% 100%;
         --popover-foreground: 240 80% 15%;
-        
+
         /* Primary - Subtle Japanese Red */
         --primary: 356 85% 35%;
         --primary-foreground: 0 0% 100%;
         --primary-light: 356 85% 95%;
-        
+
         /* Secondary - Charcoal */
         --secondary: 240 80% 20%;
         --secondary-foreground: 0 0% 100%;
-        
+
         /* Muted - Warm Off-White */
         --muted: 37 15% 93%;
         --muted-foreground: 240 20% 40%;
-        
+
         /* Accent - Warm Neutral Taupe */
         --accent: 14 30% 65%;
         --accent-foreground: 240 80% 20%;
-        
+
         /* States */
         --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 100%;
         --success: 142 76% 36%;
         --success-foreground: 0 0% 100%;
-        
+
         /* Borders & Inputs */
         --border: 0 0% 89%;
         --input: 0 0% 89%;
         --ring: 356 85% 35%;
-        
+
         /* Shadows - Subtle Japanese aesthetic */
         --shadow-sm: 0 1px 2px 0 hsl(240 80% 15% / 0.05);
         --shadow: 0 4px 6px -1px hsl(240 80% 15% / 0.1);
         --shadow-md: 0 8px 15px -3px hsl(240 80% 15% / 0.12);
         --shadow-lg: 0 20px 25px -5px hsl(240 80% 15% / 0.15);
-        
+
         /* Japanese decorative accents */
         --sakura-pink: 340 82% 91%;
         --bamboo-green: 142 25% 45%;
-        
+
         /* Transitions */
         --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         --transition-elegant: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        
+
         /* Border Radius - Soft, Japanese-inspired */
         --radius: 0.75rem;
     }
-    
+
     .dark {
         --background: 240 80% 8%;
         --foreground: 0 0% 98%;
@@ -103,11 +103,17 @@ code {
     * {
         @apply border-border;
     }
+
     body {
         @apply bg-background text-foreground;
     }
-    
-    h1, h2, h3, h4, h5, h6 {
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-family: 'Cormorant Garamond', 'Noto Sans JP', serif;
     }
 }
@@ -116,44 +122,43 @@ code {
     .smooth-scroll {
         scroll-behavior: smooth;
     }
-    
+
     .text-balance {
         text-wrap: balance;
     }
-    
+
     .gradient-text {
         background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    
+
     .japanese-border {
-        border-image: linear-gradient(90deg, 
-            transparent 0%, 
-            hsl(var(--primary) / 0.3) 15%, 
-            hsl(var(--primary) / 0.3) 85%, 
-            transparent 100%) 1;
+        border-image: linear-gradient(90deg,
+                transparent 0%,
+                hsl(var(--primary) / 0.3) 15%,
+                hsl(var(--primary) / 0.3) 85%,
+                transparent 100%) 1;
     }
-    
+
     .card-hover {
         transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
     }
-    
+
     .card-hover:hover {
         transform: translateY(-4px);
         box-shadow: var(--shadow-lg);
     }
-    
+
     .fluted-glass {
-        background-color: hsl(var(--background) / 0.85);
+        background-color: hsl(var(--background) / 0.95);
         backdrop-filter: blur(20px);
-        background-image: linear-gradient(90deg, 
-            transparent 0%, 
-            rgba(255, 255, 255, 0.05) 20%, 
-            rgba(255, 255, 255, 0) 40%, 
-            transparent 100%
-        );
+        background-image: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.05) 20%,
+                rgba(255, 255, 255, 0) 40%,
+                transparent 100%);
         background-size: 6px 100%;
     }
 }
@@ -163,7 +168,7 @@ code {
         display: contents !important;
     }
 
-    [data-debug-wrapper="true"] > * {
+    [data-debug-wrapper="true"]>* {
         margin-left: inherit;
         margin-right: inherit;
         margin-top: inherit;
