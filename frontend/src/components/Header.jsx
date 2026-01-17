@@ -33,10 +33,10 @@ export const Header = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || isMobileMenuOpen
-        ? 'backdrop-blur-md shadow-md'
+        ? 'backdrop-blur-xl shadow-md'
         : 'bg-transparent'
         }`}
-      style={isScrolled || isMobileMenuOpen ? { backgroundColor: 'hsl(var(--background) / 0.7)' } : {}}
+      style={isScrolled || isMobileMenuOpen ? { backgroundColor: 'hsl(var(--background) / 0.95)' } : {}}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
@@ -103,8 +103,8 @@ export const Header = () => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div
-            className="md:hidden fixed top-20 left-0 right-0 bottom-0 backdrop-blur-md animate-slide-in z-40 p-4"
-            style={{ backgroundColor: 'hsl(var(--background) / 0.7)' }}
+            className="md:hidden fixed top-20 left-0 right-0 bottom-0 backdrop-blur-xl animate-slide-in z-40 p-4"
+            style={{ backgroundColor: 'hsl(var(--background) / 0.95)' }}
           >
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
