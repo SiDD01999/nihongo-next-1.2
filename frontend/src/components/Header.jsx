@@ -32,11 +32,10 @@ export const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
           ? 'bg-background/95 backdrop-blur-md shadow-md'
           : 'bg-transparent'
-      }`}
+        }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
@@ -45,8 +44,8 @@ export const Header = () => {
             className="flex items-center space-x-3 cursor-pointer"
             onClick={() => scrollToSection('hero')}
           >
-            <img 
-              src="https://customer-assets.emergentagent.com/job_nihongo-studio/artifacts/3dxeu67p_logo.png" 
+            <img
+              src="https://customer-assets.emergentagent.com/job_nihongo-studio/artifacts/3dxeu67p_logo.png"
               alt="Nihongo Next Logo"
               className="h-12 w-auto object-contain"
             />
@@ -102,7 +101,7 @@ export const Header = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border animate-slide-in">
+          <div className="md:hidden py-4 border-t border-border animate-slide-in bg-background shadow-lg">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <button
