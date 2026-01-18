@@ -5,6 +5,11 @@ module.exports = {
                 "./src/**/*.{js,jsx,ts,tsx}",
                 "./public/index.html"
         ],
+        safelist: [
+                'bg-white',
+                'bg-red-500',
+                'backdrop-blur-xl',
+        ],
         theme: {
                 extend: {
                         fontFamily: {
