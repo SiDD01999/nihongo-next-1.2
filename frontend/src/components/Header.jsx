@@ -104,7 +104,7 @@ export const Header = () => {
         {isMobileMenuOpen && (
           <div
             className="md:hidden fixed top-20 left-0 right-0 bottom-0 backdrop-blur-xl animate-slide-in z-40 p-4"
-            style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
+            style={{ backgroundColor: '#ffffff' }}
           >
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
