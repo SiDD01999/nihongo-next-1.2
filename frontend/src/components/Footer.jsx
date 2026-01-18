@@ -19,8 +19,8 @@ export const Footer = () => {
           {/* Brand Section */}
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <img 
-                src="https://customer-assets.emergentagent.com/job_nihongo-studio/artifacts/3dxeu67p_logo.png" 
+              <img
+                src="https://customer-assets.emergentagent.com/job_nihongo-studio/artifacts/3dxeu67p_logo.png"
                 alt="Nihongo Next Logo"
                 className="h-12 w-auto object-contain"
               />
@@ -34,10 +34,10 @@ export const Footer = () => {
               </div>
             </div>
             <p className="text-sm text-secondary-foreground/70 mb-4 max-w-md">
-              Your trusted partner in mastering the Japanese language. 
+              Your trusted partner in mastering the Japanese language.
               Learn with clarity, consistency, and cultural understanding.
             </p>
-            
+
             {/* Social Media - Commented for future use */}
             {/* <div className="flex space-x-4">
               <a
@@ -117,8 +117,8 @@ export const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="tel:+919805052048" className="hover:text-primary transition-colors">
-                  +91 98050 52048
+                <a href="tel:+918968148664" className="hover:text-primary transition-colors">
+                  +91 89681 48664
                 </a>
               </li>
               <li>
