@@ -43,7 +43,7 @@ export const ContactSection = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.name || !formData.phone || !formData.email || !formData.course) {
       toast.error('Please fill in all fields');
@@ -73,7 +73,7 @@ export const ContactSection = () => {
       // Success
       setIsSubmitted(true);
       toast.success('Request submitted successfully! We will contact you soon.');
-      
+
       // Reset form
       setFormData({
         name: '',
@@ -246,8 +246,8 @@ export const ContactSection = () => {
                       <h3 className="font-semibold text-foreground mb-1">Phone</h3>
                       <p className="text-sm text-muted-foreground mb-1">Available Mon-Sat, 10 AM - 7 PM</p>
                       <div className="flex flex-col space-y-1">
-                        <a href="tel:+919805052048" className="text-primary hover:underline font-medium">
-                          +91 98050 52048
+                        <a href="tel:+918968148664" className="text-primary hover:underline font-medium">
+                          +91 89681 48664
                         </a>
                         <a href="tel:+918629027005" className="text-primary hover:underline font-medium">
                           +91 86290 27005
