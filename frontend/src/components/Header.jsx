@@ -32,11 +32,13 @@ export const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || isMobileMenuOpen
-        ? 'backdrop-blur-xl shadow-md'
-        : 'bg-transparent'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isMobileMenuOpen
+        ? 'bg-white shadow-md'
+        : isScrolled
+          ? 'backdrop-blur-xl shadow-md'
+          : 'bg-transparent'
         }`}
-      style={isScrolled || isMobileMenuOpen ? { backgroundColor: 'hsl(var(--background) / 0.95)' } : {}}
+      style={!isMobileMenuOpen && isScrolled ? { backgroundColor: 'hsl(var(--background) / 0.95)' } : isMobileMenuOpen ? { backgroundColor: '#ffffff' } : {}}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
@@ -99,41 +101,54 @@ export const Header = () => {
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div
-            className="md:hidden fixed top-20 left-0 right-0 bottom-0 mobile-menu animate-slide-in z-40 p-4"
-          >
-            <nav className="flex flex-col space-y-4">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className="text-left text-sm font-medium text-foreground hover:text-primary py-2 transition-colors"
-                >
-                  {item.label}
-                </button>
-              ))}
-              <div className="flex flex-col space-y-2 pt-4 border-t border-border">
-                <Button
-                  variant="outline"
-                  onClick={() => scrollToSection('courses')}
-                  className="w-full border-border hover:bg-muted"
-                >
-                  View Courses
-                </Button>
-                <Button
-                  onClick={() => scrollToSection('contact')}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  Request a Callback
-                </Button>
-              </div>
-            </nav>
-          </div>
-        )}
       </div>
+
+      {/* Mobile Menu - Outside container to cover full screen */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden fixed top-20 left-0 right-0 bottom-0 z-50 p-6 overflow-y-auto animate-slideDown"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            backgroundImage: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 20%, rgba(255, 255, 255, 0) 40%, transparent 100%)',
+            backgroundSize: '6px 100%'
+          }}
+        >
+          <nav className="flex flex-col space-y-4">
+            {navItems.map((item, index) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className="text-left text-lg font-medium text-foreground hover:text-primary py-3 transition-all duration-300 border-b border-gray-100/50 hover:pl-2"
+                style={{
+                  animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+            <div
+              className="flex flex-col space-y-3 pt-6"
+              style={{ animation: 'fadeInUp 0.3s ease-out 0.25s both' }}
+            >
+              <Button
+                variant="outline"
+                onClick={() => scrollToSection('courses')}
+                className="w-full border-border hover:bg-muted py-3 transition-all duration-300"
+              >
+                View Courses
+              </Button>
+              <Button
+                onClick={() => scrollToSection('contact')}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 transition-all duration-300"
+              >
+                Request a Callback
+              </Button>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
