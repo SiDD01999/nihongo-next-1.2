@@ -161,6 +161,11 @@ code {
                 transparent 100%);
         background-size: 6px 100%;
     }
+
+    .mobile-menu {
+        background-color: #ffffff !important;
+        backdrop-filter: blur(16px) !important;
+    }
 }
 
 @layer base {
