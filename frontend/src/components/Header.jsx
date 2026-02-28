@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isLanding = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,11 +19,17 @@ export const Header = () => {
   }, []);
 
   const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setIsMobileMenuOpen(false);
+    if (!isLanding) {
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } else {
+      const element = document.getElementById(id);
+      if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    setIsMobileMenuOpen(false);
   };
 
   const navItems = [
@@ -43,9 +53,10 @@ export const Header = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div
-            className="flex items-center space-x-3 cursor-pointer"
-            onClick={() => scrollToSection('hero')}
+          <Link
+            to="/"
+            className="flex items-center space-x-3"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <img
               src="https://customer-assets.emergentagent.com/job_nihongo-studio/artifacts/3dxeu67p_logo.png"
@@ -60,7 +71,7 @@ export const Header = () => {
                 日本語を学ぶ
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -73,10 +84,16 @@ export const Header = () => {
                 {item.label}
               </button>
             ))}
+            <Link
+              to="/blog"
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors duration-200"
+            >
+              Blog
+            </Link>
           </nav>
 
           {/* Desktop CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-3">
             <Button
               variant="outline"
               onClick={() => scrollToSection('courses')}
@@ -84,12 +101,16 @@ export const Header = () => {
             >
               View Courses
             </Button>
-            <Button
-              onClick={() => scrollToSection('contact')}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Request a Callback
-            </Button>
+            <Link to="/login">
+              <Button variant="ghost" className="hover:text-primary">
+                Log In
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Sign Up
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,7 +124,7 @@ export const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Menu - Outside container to cover full screen */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div
           className="md:hidden fixed top-20 left-0 right-0 bottom-0 z-50 p-6 overflow-y-auto animate-slideDown"
@@ -111,8 +132,6 @@ export const Header = () => {
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
-            backgroundImage: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 20%, rgba(255, 255, 255, 0) 40%, transparent 100%)',
-            backgroundSize: '6px 100%'
           }}
         >
           <nav className="flex flex-col space-y-4">
@@ -121,30 +140,34 @@ export const Header = () => {
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
                 className="text-left text-lg font-medium text-foreground hover:text-primary py-3 transition-all duration-300 border-b border-gray-100/50 hover:pl-2"
-                style={{
-                  animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`
-                }}
+                style={{ animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both` }}
               >
                 {item.label}
               </button>
             ))}
-            <div
-              className="flex flex-col space-y-3 pt-6"
-              style={{ animation: 'fadeInUp 0.3s ease-out 0.25s both' }}
+            <Link
+              to="/blog"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-left text-lg font-medium text-foreground hover:text-primary py-3 border-b border-gray-100/50 transition-colors"
             >
+              Blog
+            </Link>
+            <div className="flex flex-col space-y-3 pt-4">
               <Button
                 variant="outline"
                 onClick={() => scrollToSection('courses')}
-                className="w-full border-border hover:bg-muted py-3 transition-all duration-300"
+                className="w-full border-border hover:bg-muted py-3"
               >
                 View Courses
               </Button>
-              <Button
-                onClick={() => scrollToSection('contact')}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 transition-all duration-300"
-              >
-                Request a Callback
-              </Button>
+              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full py-3">Log In</Button>
+              </Link>
+              <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3">
+                  Sign Up
+                </Button>
+              </Link>
             </div>
           </nav>
         </div>
