@@ -162,6 +162,16 @@ code {
         background-size: 6px 100%;
     }
 
+    /* Hide scrollbar for category pills on mobile */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
     .mobile-menu {
         background-color: #ffffff !important;
         background: #ffffff !important;
