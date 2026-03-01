@@ -1,123 +1,106 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Calendar, Clock, ThumbsUp, ChevronRight, Loader2 } from 'lucide-react';
-import { getPost, getPosts, addComment, likeComment } from '@/lib/api';
+import { Calendar, Clock, ThumbsUp, ChevronRight, Loader2, Share2, Link2, Check, PenSquare, Trash2 } from 'lucide-react';
+import { getPost, getPosts, addComment, likeComment, deletePost } from '@/lib/api';
 
-// ─── Ruby text helper ─────────────────────────────────────────────────────────
-function Ruby({ char, reading }) {
+// ─── Render post content with simple markdown-like formatting ─────────────────
+function PostContent({ content }) {
+  if (!content) return null;
+
+  const lines = content.split('\n');
+
   return (
-    <ruby className="inline-flex flex-col-reverse items-center align-bottom leading-none">
-      {char}
-      <rt className="text-[0.6em] leading-[1.2] text-center text-primary font-medium" style={{ marginBottom: '-0.2em' }}>
-        {reading}
-      </rt>
-    </ruby>
+    <div className="prose prose-lg max-w-none">
+      {lines.map((line, i) => {
+        if (line.startsWith('### ')) {
+          return <h3 key={i} className="text-xl font-serif font-bold text-foreground mt-8 mb-3">{line.slice(4)}</h3>;
+        }
+        if (line.startsWith('## ')) {
+          return (
+            <h2 key={i} className="text-2xl font-serif font-bold text-primary mt-10 mb-4 pl-4 border-l-4 border-primary">
+              {line.slice(3)}
+            </h2>
+          );
+        }
+        if (line.startsWith('# ')) {
+          return <h1 key={i} className="text-3xl font-serif font-bold text-foreground mt-10 mb-4">{line.slice(2)}</h1>;
+        }
+        if (line.startsWith('- ')) {
+          return (
+            <li key={i} className="flex items-start gap-3 mb-2">
+              <span className="text-primary font-bold text-lg leading-tight mt-0.5">-</span>
+              <span className="text-foreground/80">{line.slice(2)}</span>
+            </li>
+          );
+        }
+        if (line.trim() === '') return <div key={i} className="h-4" />;
+        return <p key={i} className="text-foreground/80 leading-relaxed mb-4">{line}</p>;
+      })}
+    </div>
   );
 }
 
-// ─── Article body ─────────────────────────────────────────────────────────────
-function ArticleBody() {
+// ─── Share button ────────────────────────────────────────────────────────────
+function ShareButton({ title }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    // Try native share API (mobile)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch {
+        // User cancelled or not supported, fall through to clipboard
+      }
+    }
+
+    // Fallback: copy URL to clipboard
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const input = document.createElement('input');
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
-    <div className="prose prose-lg max-w-none">
-      <p className="text-lg leading-relaxed text-foreground/80 mb-6">
-        Japanese particles, or{' '}
-        <span className="font-bold text-primary" style={{ fontFamily: 'Noto Sans JP, sans-serif' }}>
-          助詞 (じょし)
-        </span>
-        , are the glue that holds sentences together. While they can be intimidating at first,
-        understanding their core functions unlocks a new level of fluency. Let's start with the most
-        common confusion:{' '}
-        <code className="text-primary bg-primary/10 px-1.5 py-0.5 rounded text-base font-mono">wa</code>{' '}
-        versus{' '}
-        <code className="text-primary bg-primary/10 px-1.5 py-0.5 rounded text-base font-mono">ga</code>.
-      </p>
-
-      <h2 className="text-2xl font-serif font-bold text-primary mt-10 mb-4 pl-4 border-l-4 border-primary">
-        The Topic Marker: は (Wa)
-      </h2>
-      <p className="text-foreground/80 leading-relaxed mb-6">
-        First, note that while this character is usually read as "ha", when it functions as a
-        particle, it is pronounced "wa". The particle{' '}
-        <span className="font-bold text-primary" style={{ fontFamily: 'Noto Sans JP, sans-serif' }}>は</span>{' '}
-        marks the <strong>topic</strong> of the sentence. It tells the listener,
-        "As for this thing, here is what I want to say about it."
-      </p>
-
-      {/* Example card */}
-      <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-8 shadow-sm">
-        <div className="flex items-start gap-3">
-          <span className="text-primary text-2xl mt-0.5">💡</span>
-          <div>
-            <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3">Example Sentence</p>
-            <p className="text-2xl mb-2" style={{ fontFamily: 'Noto Sans JP, sans-serif' }}>
-              <Ruby char="私" reading="わたし" />は
-              <Ruby char="学生" reading="がくせい" />です。
-            </p>
-            <p className="text-muted-foreground italic mb-1">Watashi wa gakusei desu.</p>
-            <p className="text-foreground font-medium">I am a student.</p>
-            <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-primary/10">
-              Here,{' '}
-              <span className="text-primary font-bold" style={{ fontFamily: 'Noto Sans JP, sans-serif' }}>私</span>{' '}
-              (I) is the topic. Everything following describes "I".
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <h2 className="text-2xl font-serif font-bold text-primary mt-10 mb-4 pl-4 border-l-4 border-primary">
-        The Subject Marker: が (Ga)
-      </h2>
-      <p className="text-foreground/80 leading-relaxed mb-4">
-        Unlike{' '}
-        <span className="text-primary font-bold" style={{ fontFamily: 'Noto Sans JP, sans-serif' }}>は</span>,
-        which sets a general topic,{' '}
-        <span className="text-primary font-bold" style={{ fontFamily: 'Noto Sans JP, sans-serif' }}>が</span>{' '}
-        identifies a <strong>specific subject</strong> performing an action. It puts the spotlight
-        squarely on the noun before it.
-      </p>
-      <p className="text-foreground/80 leading-relaxed mb-6">Imagine someone asks, "Who ate the cake?"</p>
-
-      {/* Comparison grid */}
-      <div className="grid md:grid-cols-2 gap-4 mb-8">
-        <div className="bg-muted/50 rounded-xl p-5 border border-border">
-          <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Wrong Context</p>
-          <p className="text-lg mb-1 opacity-50" style={{ fontFamily: 'Noto Sans JP, sans-serif' }}>
-            <Ruby char="私" reading="わたし" />は<Ruby char="食" reading="た" />べました。
-          </p>
-          <p className="text-sm text-muted-foreground">As for me, I ate (it).</p>
-        </div>
-        <div className="bg-green-50 border border-green-200 rounded-xl p-5 relative overflow-hidden">
-          <span className="absolute top-3 right-3 text-green-600 text-lg">✓</span>
-          <p className="text-xs font-bold text-green-700 uppercase mb-2">Correct Context</p>
-          <p className="text-lg mb-1" style={{ fontFamily: 'Noto Sans JP, sans-serif' }}>
-            <Ruby char="私" reading="わたし" />が<Ruby char="食" reading="た" />べました。
-          </p>
-          <p className="text-sm text-muted-foreground"><strong>I</strong> am the one who ate it.</p>
-        </div>
-      </div>
-
-      <h3 className="text-xl font-serif font-bold text-foreground mt-8 mb-3">Key Takeaways</h3>
-      <ul className="space-y-3 mb-10 list-none pl-0">
-        {[
-          'Use は for general statements and introducing topics.',
-          'Use が when identifying specifically who or what.',
-          'Always practice reading aloud to get a feel for the rhythm.',
-        ].map((item) => (
-          <li key={item} className="flex items-start gap-3">
-            <span className="text-primary font-bold text-lg leading-tight mt-0.5">✓</span>
-            <span className="text-foreground/80">{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <button
+      onClick={handleShare}
+      className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card hover:bg-muted text-sm font-medium text-foreground transition-colors"
+    >
+      {copied ? (
+        <>
+          <Check size={15} className="text-green-600" />
+          <span className="text-green-600">Link Copied!</span>
+        </>
+      ) : (
+        <>
+          <Share2 size={15} />
+          Share
+        </>
+      )}
+    </button>
   );
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export function BlogPostPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [related, setRelated] = useState([]);
@@ -130,6 +113,8 @@ export function BlogPostPage() {
     try { return JSON.parse(localStorage.getItem('nn_user')); } catch { return null; }
   })();
 
+  const isAdmin = user?.role === 'ADMIN';
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -141,7 +126,6 @@ export function BlogPostPage() {
         ]);
         setPost(postRes.data);
         setComments(postRes.data.comments || []);
-        // Related = other posts excluding current
         setRelated(postsRes.data.filter((p) => p.slug !== slug).slice(0, 3));
       } catch (err) {
         setError('Failed to load post. Please try again.');
@@ -155,11 +139,12 @@ export function BlogPostPage() {
 
   const handleComment = async () => {
     if (!commentText.trim()) return;
+    if (!user) return;
     setSubmitting(true);
     try {
       const { data } = await addComment(slug, {
         text: commentText,
-        name: user ? user.name : 'Anonymous',
+        name: user.name,
       });
       setComments([...comments, data]);
       setCommentText('');
@@ -176,6 +161,16 @@ export function BlogPostPage() {
       setComments(comments.map((c) => c.id === commentId ? { ...c, likes: data.likes } : c));
     } catch (err) {
       console.error('Like error:', err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    try {
+      await deletePost(slug);
+      navigate('/blog');
+    } catch (err) {
+      console.error('Delete error:', err);
     }
   };
 
@@ -217,7 +212,7 @@ export function BlogPostPage() {
           <ChevronRight size={14} />
           <Link to="/blog" className="hover:text-primary transition-colors">Blog</Link>
           <ChevronRight size={14} />
-          <span className="text-primary font-medium">Grammar</span>
+          <span className="text-primary font-medium capitalize">{post.category}</span>
         </nav>
 
         <article className="flex flex-col items-center">
@@ -244,6 +239,27 @@ export function BlogPostPage() {
               <span className="w-1 h-1 bg-border rounded-full hidden sm:block" />
               <span className="flex items-center gap-1.5"><Clock size={14} />{post.readTime}</span>
             </div>
+
+            {/* Share + Admin actions */}
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <ShareButton title={post.title} />
+              {isAdmin && (
+                <>
+                  <Link
+                    to={`/admin/posts/${post.slug}/edit`}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card hover:bg-muted text-sm font-medium text-foreground transition-colors"
+                  >
+                    <PenSquare size={15} /> Edit
+                  </Link>
+                  <button
+                    onClick={handleDelete}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 bg-card hover:bg-red-50 text-sm font-medium text-red-600 transition-colors"
+                  >
+                    <Trash2 size={15} /> Delete
+                  </button>
+                </>
+              )}
+            </div>
           </header>
 
           {/* Hero Image */}
@@ -256,24 +272,26 @@ export function BlogPostPage() {
             </div>
           )}
 
-          {/* Article Content */}
+          {/* Article Content — dynamic rendering */}
           <div className="w-full max-w-[720px]">
-            <ArticleBody />
+            <PostContent content={post.content} />
           </div>
 
           {/* Tags */}
-          <div className="w-full max-w-[720px] flex flex-wrap gap-2 mb-12 border-t border-border pt-6">
-            <span className="text-sm font-medium text-muted-foreground py-1">Tags:</span>
-            {post.tags.map((tag) => (
-              <Link
-                key={tag}
-                to="/blog"
-                className="px-3 py-1 bg-muted hover:bg-muted/80 hover:text-primary rounded-full text-sm text-foreground transition-colors"
-              >
-                {tag}
-              </Link>
-            ))}
-          </div>
+          {post.tags && post.tags.length > 0 && (
+            <div className="w-full max-w-[720px] flex flex-wrap gap-2 mb-12 border-t border-border pt-6">
+              <span className="text-sm font-medium text-muted-foreground py-1">Tags:</span>
+              {post.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  to="/blog"
+                  className="px-3 py-1 bg-muted hover:bg-muted/80 hover:text-primary rounded-full text-sm text-foreground transition-colors"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Author Bio */}
           <div className="w-full max-w-[800px] bg-primary/5 border border-primary/20 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center md:items-start mb-16">
@@ -283,7 +301,7 @@ export function BlogPostPage() {
             <div className="text-center md:text-left">
               <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
                 <h3 className="text-lg font-serif font-bold text-foreground">{post.author}</h3>
-                <span className="hidden md:block text-primary/40 text-xs">•</span>
+                <span className="hidden md:block text-primary/40 text-xs">-</span>
                 <span className="text-primary text-sm font-bold uppercase tracking-wider">Author</span>
               </div>
               <Link
@@ -303,29 +321,50 @@ export function BlogPostPage() {
               <span className="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">{comments.length}</span>
             </h3>
 
-            {/* New comment */}
-            <div className="flex gap-4 mb-8">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0 text-sm">
-                {user ? user.name.split(' ').map(n => n[0]).join('') : '?'}
-              </div>
-              <div className="flex-1">
-                <textarea
-                  className="w-full bg-card border border-border rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none min-h-[100px] resize-y mb-2 placeholder:text-muted-foreground transition-all"
-                  placeholder="Ask a question or share your thoughts..."
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                />
-                <div className="flex justify-end">
-                  <button
-                    onClick={handleComment}
-                    disabled={submitting}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold py-2 px-4 rounded-lg transition-colors shadow-sm disabled:opacity-60"
-                  >
-                    {submitting ? 'Posting...' : 'Post Comment'}
-                  </button>
+            {/* New comment — requires login */}
+            {user ? (
+              <div className="flex gap-4 mb-8">
+                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold flex-shrink-0 text-sm">
+                  {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                </div>
+                <div className="flex-1">
+                  <textarea
+                    className="w-full bg-card border border-border rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none min-h-[100px] resize-y mb-2 placeholder:text-muted-foreground transition-all"
+                    placeholder="Ask a question or share your thoughts..."
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                  />
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">Commenting as <strong>{user.name}</strong></span>
+                    <button
+                      onClick={handleComment}
+                      disabled={submitting || !commentText.trim()}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold py-2 px-4 rounded-lg transition-colors shadow-sm disabled:opacity-60"
+                    >
+                      {submitting ? 'Posting...' : 'Post Comment'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3 py-8 mb-8 bg-muted/50 rounded-xl border border-border">
+                <p className="text-muted-foreground text-sm">Log in to join the discussion</p>
+                <div className="flex gap-3">
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
+            )}
 
             {/* Comment list */}
             <div className="space-y-6">
@@ -343,7 +382,7 @@ export function BlogPostPage() {
                             {c.time ? new Date(c.time).toLocaleDateString() : ''}
                           </span>
                         </div>
-                        <p className="text-foreground/80 text-sm">{c.text}</p>
+                        <p className="text-foreground/80 text-sm whitespace-pre-wrap">{c.text}</p>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <button
@@ -357,43 +396,48 @@ export function BlogPostPage() {
                   </div>
                 </div>
               ))}
+              {comments.length === 0 && (
+                <p className="text-center text-muted-foreground text-sm py-8">No comments yet. Be the first to share your thoughts!</p>
+              )}
             </div>
           </div>
 
           {/* Keep Learning — Related Articles */}
-          <div className="w-full max-w-[960px] border-t border-border pt-12">
-            <div className="flex justify-between items-end mb-6">
-              <div>
-                <h3 className="text-xl font-serif font-bold text-foreground mb-1">Keep Learning</h3>
-                <p className="text-muted-foreground text-sm">Related articles chosen for you</p>
-              </div>
-              <Link to="/blog" className="text-primary text-sm font-bold flex items-center gap-1 hover:underline group">
-                View all
-                <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
-              </Link>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {related.map((item) => (
-                <Link key={item.slug} to={`/blog/${item.slug}`} className="group block">
-                  <div className="w-full aspect-[4/3] rounded-xl bg-muted mb-4 overflow-hidden relative shadow-sm">
-                    {item.image && (
-                      <div
-                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                        style={{ backgroundImage: `url('${item.image}')` }}
-                      />
-                    )}
-                    <div className="absolute top-3 left-3 bg-background/90 backdrop-blur px-2 py-1 rounded text-xs font-bold text-foreground border border-border">
-                      {item.category}
-                    </div>
-                  </div>
-                  <h4 className="font-serif font-bold text-foreground mb-2 group-hover:text-primary transition-colors leading-snug">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground">By {item.author} • {item.readTime}</p>
+          {related.length > 0 && (
+            <div className="w-full max-w-[960px] border-t border-border pt-12">
+              <div className="flex justify-between items-end mb-6">
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-foreground mb-1">Keep Learning</h3>
+                  <p className="text-muted-foreground text-sm">Related articles chosen for you</p>
+                </div>
+                <Link to="/blog" className="text-primary text-sm font-bold flex items-center gap-1 hover:underline group">
+                  View all
+                  <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
                 </Link>
-              ))}
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {related.map((item) => (
+                  <Link key={item.slug} to={`/blog/${item.slug}`} className="group block">
+                    <div className="w-full aspect-[4/3] rounded-xl bg-muted mb-4 overflow-hidden relative shadow-sm">
+                      {item.image && (
+                        <div
+                          className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+                          style={{ backgroundImage: `url('${item.image}')` }}
+                        />
+                      )}
+                      <div className="absolute top-3 left-3 bg-background/90 backdrop-blur px-2 py-1 rounded text-xs font-bold text-foreground border border-border">
+                        {item.category}
+                      </div>
+                    </div>
+                    <h4 className="font-serif font-bold text-foreground mb-2 group-hover:text-primary transition-colors leading-snug">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-muted-foreground">By {item.author} - {item.readTime}</p>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </article>
       </main>
 

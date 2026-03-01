@@ -13,6 +13,18 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required');
 }
 
+function makeToken(user) {
+  return jwt.sign(
+    { id: user.id, email: user.email, name: user.name, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+}
+
+function userResponse(user) {
+  return { id: user.id, name: user.name, email: user.email, role: user.role };
+}
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
@@ -25,38 +37,17 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters.' });
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ error: 'An account with this email already exists.' });
     }
 
-    // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
-
-    // Create user
     const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-      },
+      data: { name, email, passwordHash },
     });
 
-    // Generate token
-    const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.status(201).json({
-      token,
-      user: { id: user.id, name: user.name, email: user.email },
-    });
+    res.status(201).json({ token: makeToken(user), user: userResponse(user) });
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({ error: 'Failed to register user' });
@@ -72,32 +63,17 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Check password
     const validPassword = await bcrypt.compare(password, user.passwordHash);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Generate token
-    const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.json({
-      token,
-      user: { id: user.id, name: user.name, email: user.email },
-    });
+    res.json({ token: makeToken(user), user: userResponse(user) });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Failed to login' });
@@ -116,7 +92,6 @@ router.post('/google', async (req, res) => {
       return res.status(400).json({ error: 'Google credential is required.' });
     }
 
-    // Verify the Google ID token
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
       audience: GOOGLE_CLIENT_ID,
@@ -124,38 +99,23 @@ router.post('/google', async (req, res) => {
     const payload = ticket.getPayload();
     const { sub: googleId, email, name, picture } = payload;
 
-    // Find or create user
     let user = await prisma.user.findUnique({ where: { googleId } });
 
     if (!user) {
-      // Check if email already exists (user registered with email/password)
       user = await prisma.user.findUnique({ where: { email } });
-
       if (user) {
-        // Link Google account to existing user
         user = await prisma.user.update({
           where: { id: user.id },
           data: { googleId },
         });
       } else {
-        // Create new user
         user = await prisma.user.create({
           data: { name: name || email.split('@')[0], email, googleId },
         });
       }
     }
 
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.json({
-      token,
-      user: { id: user.id, name: user.name, email: user.email },
-    });
+    res.json({ token: makeToken(user), user: userResponse(user) });
   } catch (error) {
     console.error('Google auth error:', error);
     res.status(401).json({ error: 'Google authentication failed.' });

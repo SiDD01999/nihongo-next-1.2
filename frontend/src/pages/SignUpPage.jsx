@@ -18,6 +18,7 @@ export function SignUpPage() {
       const { data } = await googleLogin(credentialResponse.credential);
       localStorage.setItem('nn_token', data.token);
       localStorage.setItem('nn_user', JSON.stringify(data.user));
+      window.dispatchEvent(new Event('auth-change'));
       navigate('/blog');
     } catch (err) {
       setError(err.response?.data?.error || 'Google sign up failed');
@@ -46,6 +47,7 @@ export function SignUpPage() {
       const { data } = await register(form);
       localStorage.setItem('nn_token', data.token);
       localStorage.setItem('nn_user', JSON.stringify(data.user));
+      window.dispatchEvent(new Event('auth-change'));
       navigate('/blog');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Registration failed');

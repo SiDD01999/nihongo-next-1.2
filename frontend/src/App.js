@@ -14,11 +14,12 @@ import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 
-// New pages
+// Pages
 import { BlogListPage } from "@/pages/BlogListPage";
 import { BlogPostPage } from "@/pages/BlogPostPage";
 import { SignUpPage } from "@/pages/SignUpPage";
 import { LoginPage } from "@/pages/LoginPage";
+import { AdminPostEditor } from "@/pages/AdminPostEditor";
 
 function LandingPage() {
   return (
@@ -49,6 +50,8 @@ function App() {
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/posts/new" element={<AdminPostEditor />} />
+        <Route path="/admin/posts/:slug/edit" element={<AdminPostEditor />} />
       </Routes>
     </BrowserRouter>
   );
