@@ -50,6 +50,27 @@ app.get('/api/health', async (req, res) => {
 const server = app.listen(PORT, () => {
   console.log(`[${NODE_ENV}] Nihongo Next API running on port ${PORT}`);
   console.log(`  CORS origins: ${CORS_ORIGIN}`);
+
+  // Keep-alive: ping self every 14 minutes to prevent Render free-tier sleep
+  if (NODE_ENV === 'production' && process.env.RENDER_EXTERNAL_URL) {
+    const KEEP_ALIVE_MS = 14 * 60 * 1000; // 14 minutes
+    setInterval(async () => {
+      try {
+        const https = require('https');
+        const http = require('http');
+        const url = `${process.env.RENDER_EXTERNAL_URL}/api/health`;
+        const client = url.startsWith('https') ? https : http;
+        client.get(url, (res) => {
+          console.log(`[keep-alive] pinged ${url} — ${res.statusCode}`);
+        }).on('error', (err) => {
+          console.log(`[keep-alive] ping failed: ${err.message}`);
+        });
+      } catch (err) {
+        console.log(`[keep-alive] error: ${err.message}`);
+      }
+    }, KEEP_ALIVE_MS);
+    console.log(`  Keep-alive enabled (every 14 min)`);
+  }
 });
 
 // Graceful shutdown
