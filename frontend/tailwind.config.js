@@ -82,6 +82,14 @@ module.exports = {
                                         from: { opacity: '0', transform: 'translateY(10px)' },
                                         to: { opacity: '1', transform: 'translateY(0)' }
                                 },
+                                'fade-in-up': {
+                                        from: { opacity: '0', transform: 'translateY(20px)' },
+                                        to: { opacity: '1', transform: 'translateY(0)' }
+                                },
+                                'fade-in-scale': {
+                                        from: { opacity: '0', transform: 'scale(0.97)' },
+                                        to: { opacity: '1', transform: 'scale(1)' }
+                                },
                                 'slide-in': {
                                         from: { transform: 'translateX(100%)' },
                                         to: { transform: 'translateX(0)' }
@@ -89,14 +97,21 @@ module.exports = {
                                 'float': {
                                         '0%, 100%': { transform: 'translateY(0)' },
                                         '50%': { transform: 'translateY(-10px)' }
+                                },
+                                'stagger-in': {
+                                        from: { opacity: '0', transform: 'translateY(16px)' },
+                                        to: { opacity: '1', transform: 'translateY(0)' }
                                 }
                         },
                         animation: {
                                 'accordion-down': 'accordion-down 0.2s ease-out',
                                 'accordion-up': 'accordion-up 0.2s ease-out',
                                 'fade-in': 'fade-in 0.6s ease-out',
+                                'fade-in-up': 'fade-in-up 0.5s cubic-bezier(0.4,0,0.2,1) both',
+                                'fade-in-scale': 'fade-in-scale 0.4s cubic-bezier(0.4,0,0.2,1) both',
                                 'slide-in': 'slide-in 0.5s ease-out',
-                                'float': 'float 3s ease-in-out infinite'
+                                'float': 'float 3s ease-in-out infinite',
+                                'stagger-in': 'stagger-in 0.4s cubic-bezier(0.4,0,0.2,1) both'
                         }
                 }
         },
