@@ -163,7 +163,7 @@ export function BlogListPage() {
             )}
 
             {/* Article Grid */}
-            {!loading && !error && <div className="grid sm:grid-cols-2 gap-6">
+            {!loading && !error && rest.length > 0 && <div className="grid sm:grid-cols-2 gap-6">
               {rest.map((post) => (
                 <Link key={post.slug} to={`/blog/${post.slug}`} className="group block">
                   <div className="rounded-xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-md transition-all h-full flex flex-col">
@@ -191,7 +191,25 @@ export function BlogListPage() {
 
             {!loading && !error && posts.length === 0 && (
               <div className="text-center py-20">
-                <p className="text-muted-foreground text-lg">No articles found matching your search.</p>
+                <BookOpen size={48} className="mx-auto text-muted-foreground/40 mb-4" />
+                {searchQuery || activeCategory !== 'all' ? (
+                  <>
+                    <p className="text-muted-foreground text-lg mb-2">No articles found matching your search.</p>
+                    <button
+                      onClick={() => { setSearchQuery(''); setActiveCategory('all'); }}
+                      className="text-primary text-sm font-medium hover:underline"
+                    >
+                      Clear filters
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-foreground text-xl font-serif font-bold mb-2">No articles yet</p>
+                    <p className="text-muted-foreground text-sm">
+                      Stay tuned — new articles about Japanese language and culture are coming soon!
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -236,6 +254,7 @@ export function BlogListPage() {
             </div>
 
             {/* Trending */}
+            {trending.length > 0 && (
             <div className="bg-card border border-border rounded-xl p-5">
               <h3 className="font-serif font-bold text-foreground mb-4 flex items-center gap-2">
                 <TrendingUp size={16} className="text-primary" />
@@ -261,6 +280,7 @@ export function BlogListPage() {
                 ))}
               </ul>
             </div>
+            )}
 
             {/* Newsletter */}
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-5">
