@@ -11,6 +11,7 @@ import { AboutSection } from "@/components/AboutSection";
 import { WhySection } from "@/components/WhySection";
 import { CoursesSection } from "@/components/CoursesSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
+import { BlogSection } from "@/components/BlogSection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 
@@ -31,6 +32,7 @@ function LandingPage() {
         <WhySection />
         <CoursesSection />
         <TestimonialsSection />
+        <BlogSection />
         <ContactSection />
       </main>
       <Footer />
