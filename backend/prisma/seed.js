@@ -9,6 +9,11 @@ async function main() {
   const postsFile = path.join(__dirname, '../data/posts.json');
   const postsData = JSON.parse(fs.readFileSync(postsFile, 'utf-8'));
 
+  if (postsData.length === 0) {
+    console.log('No seed data found. Skipping.');
+    return;
+  }
+
   console.log(`Seeding database with ${postsData.length} posts...`);
 
   for (const postData of postsData) {

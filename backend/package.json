@@ -9,6 +9,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:seed": "node prisma/seed.js",
+    "prisma:clear-seed": "node prisma/clear-seed-data.js",
     "seed": "prisma db seed",
     "postinstall": "prisma generate"
   },
