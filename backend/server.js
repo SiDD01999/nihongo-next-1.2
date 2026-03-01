@@ -7,6 +7,7 @@ const prisma = require('./lib/prisma');
 
 const authRoutes = require('./routes/auth');
 const postsRoutes = require('./routes/posts');
+const uploadRoutes = require('./routes/upload');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -33,6 +34,7 @@ app.use('/api/auth/register', authLimiter);
 // ─── Routes ──────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postsRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check with DB connectivity
 app.get('/api/health', async (req, res) => {

@@ -25,5 +25,15 @@ export const likeComment = (slug, commentId) => api.post(`/posts/${slug}/comment
 // Auth
 export const login = (data) => api.post('/auth/login', data);
 export const register = (data) => api.post('/auth/register', data);
+export const googleLogin = (credential) => api.post('/auth/google', { credential });
+
+// Upload
+export const uploadImage = (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  return api.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
 
 export default api;

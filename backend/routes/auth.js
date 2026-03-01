@@ -1,10 +1,13 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const prisma = require('../lib/prisma');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required');
@@ -98,6 +101,64 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Failed to login' });
+  }
+});
+
+// POST /api/auth/google — Google OAuth login/register
+router.post('/google', async (req, res) => {
+  try {
+    if (!googleClient) {
+      return res.status(501).json({ error: 'Google OAuth is not configured.' });
+    }
+
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ error: 'Google credential is required.' });
+    }
+
+    // Verify the Google ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    // Find or create user
+    let user = await prisma.user.findUnique({ where: { googleId } });
+
+    if (!user) {
+      // Check if email already exists (user registered with email/password)
+      user = await prisma.user.findUnique({ where: { email } });
+
+      if (user) {
+        // Link Google account to existing user
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { googleId },
+        });
+      } else {
+        // Create new user
+        user = await prisma.user.create({
+          data: { name: name || email.split('@')[0], email, googleId },
+        });
+      }
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email, name: user.name },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email },
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(401).json({ error: 'Google authentication failed.' });
   }
 });
 

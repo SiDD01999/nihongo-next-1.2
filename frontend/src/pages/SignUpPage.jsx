@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import { register } from '@/lib/api';
+import { register, googleLogin } from '@/lib/api';
+import { GoogleLogin } from '@react-oauth/google';
 
 export function SignUpPage() {
   const navigate = useNavigate();
@@ -9,6 +10,21 @@ export function SignUpPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await googleLogin(credentialResponse.credential);
+      localStorage.setItem('nn_token', data.token);
+      localStorage.setItem('nn_user', JSON.stringify(data.user));
+      navigate('/blog');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Google sign up failed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -102,24 +118,20 @@ export function SignUpPage() {
                 <p className="text-primary text-sm font-semibold">Unlock our exclusive blog and resources.</p>
               </div>
 
-              {/* SSO Buttons */}
-              <div className="flex flex-col gap-3 mb-6">
-                <button className="flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-medium text-sm">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
-                  Sign up with Google
-                </button>
-                <button className="flex items-center justify-center gap-3 w-full h-12 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 font-medium text-sm">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.987C24.007 5.367 18.641 0 12.017 0z"/>
-                  </svg>
-                  Sign up with Apple
-                </button>
-              </div>
+              {/* Google SSO */}
+              {process.env.REACT_APP_GOOGLE_CLIENT_ID && (
+                <div className="flex flex-col gap-3 mb-6">
+                  <div className="flex justify-center">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => setError('Google sign up failed. Please try again.')}
+                      text="signup_with"
+                      shape="rectangular"
+                      width="100%"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="relative mb-6">
                 <div className="absolute inset-0 flex items-center">
