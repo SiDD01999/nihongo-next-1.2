@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { login } from '@/lib/api';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -22,18 +23,12 @@ export function LoginPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:4000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
+      const { data } = await login(form);
       localStorage.setItem('nn_token', data.token);
       localStorage.setItem('nn_user', JSON.stringify(data.user));
       navigate('/blog');
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Login failed');
     } finally {
       setLoading(false);
     }

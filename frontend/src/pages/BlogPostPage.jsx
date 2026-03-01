@@ -1,41 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Calendar, Clock, ThumbsUp, ChevronRight, ArrowForward } from 'lucide-react';
-
-// ─── Mock post data ───────────────────────────────────────────────────────────
-const POSTS = {
-  'mastering-japanese-particles': {
-    slug: 'mastering-japanese-particles',
-    category: 'Grammar Deep Dive',
-    title: 'Mastering Japanese Particles: Not as Scary as You Think',
-    subtitle: 'A deep dive into は, が, に, and で for beginners.',
-    author: { name: 'Kenji Tanaka', role: 'Senior Instructor', initials: 'KT',
-      bio: 'Kenji has been teaching Japanese to international students for over 10 years. He specializes in breaking down complex grammar concepts into bite-sized, digestible lessons. He loves hiking in Nagano on weekends.',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAADh-nYRXttm8SnVIErg74W2WmmHGAUy9vd8A5qsUYoHCQfNQ-ir2HmjE6rJ4zOvq6gYnLWNuS4dWHGDQACIA4SELVePo5u00GrMwnBdp7Zd8aEwobWl_rVu87D0cTkWiif8k0SuSQuLOdS3iTAqngK-qld6Jmz7Y71RnJ33KZpXj9BjwC_oTMcf41_Illm1qQltYy7fIKPhV6lPdsZEJDiTKxNF8KzzLFTnB5IRkJpRXEBBu3eLyPqE9uYxeetJbrUjdIFTotznQ' },
-    date: 'Oct 12, 2023',
-    readTime: '15 min read',
-    heroImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDjiNXkftsR81kl9x-nfN35jXleZ1LOhiKIntbPLD16E7xCT7ywsPcSSE-RbKw6nU1dV-e_IgL51J1uMZfzK1vCae2K2BpUU24mhbOwOLeNvRCRv56HzFkCDvhjc6iYnuSf-_wREOX3eJIXwgVpQii7nU3lQYXiSCy5Jdr4l2s-vN2PJbGjV-3WPZnbpTIWQ1DzX3kux3P9KkJBD9Uc-VboySKvafaFW7SAyQH1VIHpA0i7xWVeP7HGE59bxjvjgLyOTVkHzdfy0zg',
-    heroCaption: 'Kyoto in Autumn — The perfect setting for study.',
-    tags: ['Grammar', 'Beginner', 'Particles'],
-  },
-};
-
-const RELATED = [
-  { slug: 'keigo-formal-japanese', category: 'Culture', title: "Understanding 'Keigo': Formal Japanese", author: 'Yuki Sato', readTime: '10 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDAfTFxiqAkwx1McWH6hYDGnAasHA8UDNDmMNwF6sPLyGftg_Cqw2ev-EsDdfpi9yxIuVef1DzeJVFaaCqlNV5ySkDStyUilUeS6dErLLUT9yE2n2D6VylT4MsMGNoJH-K8-0o43C8uYGInp1x9kzCLjC55iY_kA7RHOdQmXv90cbIPVczzcBuNjl6YKFHGOqIiPiG-BNg2ih_bU6eV2CO6sz_VYcq4DfxCQjFJgI19Zwlka81YYK5Iu_A5FUT50fwI9zRMEwVf0K4' },
-  { slug: 'food-vocabulary-travelers', category: 'Vocabulary', title: 'Essential Food Vocabulary for Travelers', author: 'Kenji Tanaka', readTime: '8 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9-4PxdjUagNriQq3CX-TqOPDmW4Ky5cZ64zBFbiJO4joel7_lWy5rTLo8ftdkFK9Bu9X8YyIDagoknap_ptVQn3T8HHAlHAyN2hN43NBvA2LUzs6A-TqnD-z4b72e7wrmHuoM7hF52VvdwTeSt6WzXZ2-X31k032J8KZeKrhBFJA9qRa0h9QBMMUvR6vm6ZaShEOYG7-dy0tq0MqsJ3AWQhz9TPVSsvk8dfyonhI9cz19ZjNehxh7wL3Ws8-FZXt5y-_h3S31RGw' },
-  { slug: 'top-10-kanji-must-know', category: 'Beginner', title: 'Top 10 Kanji You Must Know', author: 'Mike Ross', readTime: '12 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCxXDLx8EuPYFtEYzW8gH3szmsKxUArXX6qzcXk0xbjEV3kiZuxzqfvgQKYGPwGHFl7aOD5HDbo-9TqfMgTu7KVHUw_yLYYkLqwxXCiyM8Y90levni1LTy7Y2GIWAQKQRFhx_Bp16Iya3T_BIMcxnTmZzY9unbw-ikyXYGOhFh_3bwTd6-Ihnz4vIaEc7WVMHYYhSMd07J7hLnrvxPRswqkkuSWCtE3mU8jFO-L77TFh0wKid1fa6YvgLFdRa4eP5P2yyhW9QpmHzU' },
-];
-
-const COMMENTS = [
-  { id: 1, name: 'Sarah Jenkins', initials: 'SJ', text: 'This finally makes sense! I\'ve been struggling with the wa/ga distinction for months. The "who ate the cake" example was perfect.', time: '2 hours ago', likes: 14,
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuABEDOB-_C7Br-ycMdubjTtcSFw1wDidVxoVNoV1cR8zhAFEFiEIUgR29G-Pv9EfjhCrbk0mYlAttQhF6qrg7e48Aa3Th7Qfe1j_NfJkNsSxvXX2Frro_Adfu2nsqbGslGMeBGpqrGacpzCC2WmtOe6DAglPqd5IVpnb6m9gpSPbdDgpq04-FISRMIBdsDXJs6p2-oYZi-m_zLl8tiNuYnEJSLI6gzfX46roM_5w0N_y7uWTr-3yBCWH5OiVS1StMCgy4pjzoFGNl0',
-    reply: { name: 'Kenji Tanaka', text: 'Glad it helped, Sarah! Keep practicing those example sentences.', time: '1 hour ago' } },
-];
+import { Calendar, Clock, ThumbsUp, ChevronRight, Loader2 } from 'lucide-react';
+import { getPost, getPosts, addComment, likeComment } from '@/lib/api';
 
 // ─── Ruby text helper ─────────────────────────────────────────────────────────
 function Ruby({ char, reading }) {
@@ -150,18 +118,93 @@ function ArticleBody() {
 // ─── Main page ────────────────────────────────────────────────────────────────
 export function BlogPostPage() {
   const { slug } = useParams();
-  const post = POSTS[slug] || POSTS['mastering-japanese-particles'];
+  const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [related, setRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState(COMMENTS);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleComment = () => {
+  const user = (() => {
+    try { return JSON.parse(localStorage.getItem('nn_user')); } catch { return null; }
+  })();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const [postRes, postsRes] = await Promise.all([
+          getPost(slug),
+          getPosts(),
+        ]);
+        setPost(postRes.data);
+        setComments(postRes.data.comments || []);
+        // Related = other posts excluding current
+        setRelated(postsRes.data.filter((p) => p.slug !== slug).slice(0, 3));
+      } catch (err) {
+        setError('Failed to load post. Please try again.');
+        console.error('Fetch post error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [slug]);
+
+  const handleComment = async () => {
     if (!commentText.trim()) return;
-    setComments([...comments, {
-      id: comments.length + 2, name: 'You', initials: 'YO',
-      text: commentText, time: 'Just now', likes: 0, image: null,
-    }]);
-    setCommentText('');
+    setSubmitting(true);
+    try {
+      const { data } = await addComment(slug, {
+        text: commentText,
+        name: user ? user.name : 'Anonymous',
+      });
+      setComments([...comments, data]);
+      setCommentText('');
+    } catch (err) {
+      console.error('Comment error:', err);
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const handleLike = async (commentId) => {
+    try {
+      const { data } = await likeComment(slug, commentId);
+      setComments(comments.map((c) => c.id === commentId ? { ...c, likes: data.likes } : c));
+    } catch (err) {
+      console.error('Like error:', err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center flex-col gap-4">
+          <p className="text-red-500 text-lg">{error || 'Post not found.'}</p>
+          <Link to="/blog" className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+            Back to Blog
+          </Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -187,15 +230,14 @@ export function BlogPostPage() {
               {post.title}
             </h1>
             <p className="text-muted-foreground text-lg md:text-xl leading-relaxed mb-6 font-light">
-              {post.subtitle}
+              {post.excerpt}
             </p>
             <div className="flex items-center justify-center flex-wrap gap-4 text-sm text-muted-foreground border-t border-b border-border py-4 w-full">
               <div className="flex items-center gap-2">
-                <div
-                  className="w-8 h-8 rounded-full bg-muted bg-cover bg-center"
-                  style={{ backgroundImage: `url('${post.author.image}')` }}
-                />
-                <span className="font-medium text-foreground">{post.author.name}</span>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                  {post.author.split(' ').map(n => n[0]).join('')}
+                </div>
+                <span className="font-medium text-foreground">{post.author}</span>
               </div>
               <span className="w-1 h-1 bg-border rounded-full hidden sm:block" />
               <span className="flex items-center gap-1.5"><Calendar size={14} />{post.date}</span>
@@ -205,15 +247,14 @@ export function BlogPostPage() {
           </header>
 
           {/* Hero Image */}
-          <div className="w-full max-w-[960px] mb-12 rounded-2xl overflow-hidden shadow-lg border border-border">
-            <div
-              className="aspect-video w-full bg-cover bg-center"
-              style={{ backgroundImage: `url('${post.heroImage}')` }}
-            />
-            <div className="bg-card py-3 px-4 text-center border-t border-border">
-              <p className="text-xs text-muted-foreground italic">{post.heroCaption}</p>
+          {post.image && (
+            <div className="w-full max-w-[960px] mb-12 rounded-2xl overflow-hidden shadow-lg border border-border">
+              <div
+                className="aspect-video w-full bg-cover bg-center"
+                style={{ backgroundImage: `url('${post.image}')` }}
+              />
             </div>
-          </div>
+          )}
 
           {/* Article Content */}
           <div className="w-full max-w-[720px]">
@@ -236,22 +277,20 @@ export function BlogPostPage() {
 
           {/* Author Bio */}
           <div className="w-full max-w-[800px] bg-primary/5 border border-primary/20 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center md:items-start mb-16">
-            <div
-              className="w-20 h-20 flex-shrink-0 rounded-full bg-muted bg-cover bg-center ring-4 ring-background shadow-sm"
-              style={{ backgroundImage: `url('${post.author.image}')` }}
-            />
+            <div className="w-20 h-20 flex-shrink-0 rounded-full bg-primary/10 ring-4 ring-background shadow-sm flex items-center justify-center text-primary font-bold text-2xl">
+              {post.author.split(' ').map(n => n[0]).join('')}
+            </div>
             <div className="text-center md:text-left">
               <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
-                <h3 className="text-lg font-serif font-bold text-foreground">{post.author.name}</h3>
+                <h3 className="text-lg font-serif font-bold text-foreground">{post.author}</h3>
                 <span className="hidden md:block text-primary/40 text-xs">•</span>
-                <span className="text-primary text-sm font-bold uppercase tracking-wider">{post.author.role}</span>
+                <span className="text-primary text-sm font-bold uppercase tracking-wider">Author</span>
               </div>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-4">{post.author.bio}</p>
               <Link
                 to="/blog"
                 className="text-primary hover:text-primary/80 text-sm font-bold flex items-center justify-center md:justify-start gap-1 group"
               >
-                View all posts by {post.author.name.split(' ')[0]}
+                View all posts by {post.author.split(' ')[0]}
                 <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
               </Link>
             </div>
@@ -267,7 +306,7 @@ export function BlogPostPage() {
             {/* New comment */}
             <div className="flex gap-4 mb-8">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0 text-sm">
-                JD
+                {user ? user.name.split(' ').map(n => n[0]).join('') : '?'}
               </div>
               <div className="flex-1">
                 <textarea
@@ -279,9 +318,10 @@ export function BlogPostPage() {
                 <div className="flex justify-end">
                   <button
                     onClick={handleComment}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold py-2 px-4 rounded-lg transition-colors shadow-sm"
+                    disabled={submitting}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold py-2 px-4 rounded-lg transition-colors shadow-sm disabled:opacity-60"
                   >
-                    Post Comment
+                    {submitting ? 'Posting...' : 'Post Comment'}
                   </button>
                 </div>
               </div>
@@ -292,51 +332,29 @@ export function BlogPostPage() {
               {comments.map((c) => (
                 <div key={c.id}>
                   <div className="flex gap-4">
-                    <div
-                      className="w-10 h-10 rounded-full bg-muted bg-cover bg-center flex-shrink-0 flex items-center justify-center text-sm font-bold text-muted-foreground"
-                      style={c.image ? { backgroundImage: `url('${c.image}')` } : {}}
-                    >
-                      {!c.image && c.initials}
+                    <div className="w-10 h-10 rounded-full bg-muted flex-shrink-0 flex items-center justify-center text-sm font-bold text-muted-foreground">
+                      {c.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </div>
                     <div className="flex-1">
                       <div className="bg-muted/50 rounded-xl p-4 mb-2">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-bold text-foreground text-sm">{c.name}</span>
-                          <span className="text-xs text-muted-foreground">{c.time}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {c.time ? new Date(c.time).toLocaleDateString() : ''}
+                          </span>
                         </div>
                         <p className="text-foreground/80 text-sm">{c.text}</p>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                        <button
+                          onClick={() => handleLike(c.id)}
+                          className="flex items-center gap-1 hover:text-primary transition-colors"
+                        >
                           <ThumbsUp size={13} /> {c.likes}
                         </button>
-                        <button className="hover:text-primary transition-colors">Reply</button>
                       </div>
                     </div>
                   </div>
-
-                  {/* Author reply */}
-                  {c.reply && (
-                    <div className="flex gap-4 pl-14 mt-4">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
-                        KT
-                      </div>
-                      <div className="flex-1">
-                        <div className="bg-primary/5 border border-primary/10 rounded-xl p-3 mb-2">
-                          <div className="flex justify-between items-center mb-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-foreground text-sm">{c.reply.name}</span>
-                              <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
-                                AUTHOR
-                              </span>
-                            </div>
-                            <span className="text-xs text-muted-foreground">{c.reply.time}</span>
-                          </div>
-                          <p className="text-foreground/80 text-sm">{c.reply.text}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -355,13 +373,15 @@ export function BlogPostPage() {
               </Link>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
-              {RELATED.map((item) => (
+              {related.map((item) => (
                 <Link key={item.slug} to={`/blog/${item.slug}`} className="group block">
                   <div className="w-full aspect-[4/3] rounded-xl bg-muted mb-4 overflow-hidden relative shadow-sm">
-                    <div
-                      className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                      style={{ backgroundImage: `url('${item.image}')` }}
-                    />
+                    {item.image && (
+                      <div
+                        className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+                        style={{ backgroundImage: `url('${item.image}')` }}
+                      />
+                    )}
                     <div className="absolute top-3 left-3 bg-background/90 backdrop-blur px-2 py-1 rounded text-xs font-bold text-foreground border border-border">
                       {item.category}
                     </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { register } from '@/lib/api';
 
 export function SignUpPage() {
   const navigate = useNavigate();
@@ -26,18 +27,12 @@ export function SignUpPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:4000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Registration failed');
+      const { data } = await register(form);
       localStorage.setItem('nn_token', data.token);
       localStorage.setItem('nn_user', JSON.stringify(data.user));
       navigate('/blog');
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

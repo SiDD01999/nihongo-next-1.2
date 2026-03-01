@@ -1,90 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Search, Clock, Calendar, ChevronRight, BookOpen, TrendingUp, Mail } from 'lucide-react';
+import { Search, Clock, Calendar, ChevronRight, BookOpen, TrendingUp, Mail, Loader2 } from 'lucide-react';
+import { getPosts } from '@/lib/api';
 
 const CATEGORIES = [
-  { label: 'All Posts', value: 'all', count: 12 },
-  { label: 'Grammar', value: 'grammar', count: 4 },
-  { label: 'Culture', value: 'culture', count: 3 },
-  { label: 'Vocabulary', value: 'vocabulary', count: 3 },
-  { label: 'Kanji', value: 'kanji', count: 2 },
-];
-
-const POSTS = [
-  {
-    slug: 'mastering-japanese-particles',
-    title: 'Mastering Japanese Particles: Not as Scary as You Think',
-    excerpt: 'A deep dive into は, が, に, and で — the particles that confuse beginners the most, explained clearly with real examples.',
-    category: 'grammar',
-    author: 'Kenji Tanaka',
-    date: 'Oct 12, 2023',
-    readTime: '15 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDjiNXkftsR81kl9x-nfN35jXleZ1LOhiKIntbPLD16E7xCT7ywsPcSSE-RbKw6nU1dV-e_IgL51J1uMZfzK1vCae2K2BpUU24mhbOwOLeNvRCRv56HzFkCDvhjc6iYnuSf-_wREOX3eJIXwgVpQii7nU3lQYXiSCy5Jdr4l2s-vN2PJbGjV-3WPZnbpTIWQ1DzX3kux3P9KkJBD9Uc-VboySKvafaFW7SAyQH1VIHpA0i7xWVeP7HGE59bxjvjgLyOTVkHzdfy0zg',
-    featured: true,
-  },
-  {
-    slug: 'keigo-formal-japanese',
-    title: "Understanding 'Keigo': Formal Japanese",
-    excerpt: 'Master the art of polite speech in Japanese. From です/ます forms to honorific and humble language.',
-    category: 'culture',
-    author: 'Yuki Sato',
-    date: 'Oct 5, 2023',
-    readTime: '10 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDAfTFxiqAkwx1McWH6hYDGnAasHA8UDNDmMNwF6sPLyGftg_Cqw2ev-EsDdfpi9yxIuVef1DzeJVFaaCqlNV5ySkDStyUilUeS6dErLLUT9yE2n2D6VylT4MsMGNoJH-K8-0o43C8uYGInp1x9kzCLjC55iY_kA7RHOdQmXv90cbIPVczzcBuNjl6YKFHGOqIiPiG-BNg2ih_bU6eV2CO6sz_VYcq4DfxCQjFJgI19Zwlka81YYK5Iu_A5FUT50fwI9zRMEwVf0K4',
-    featured: false,
-  },
-  {
-    slug: 'food-vocabulary-travelers',
-    title: 'Essential Food Vocabulary for Travelers',
-    excerpt: 'Planning a trip to Japan? These 50 food words and phrases will help you order with confidence at any restaurant.',
-    category: 'vocabulary',
-    author: 'Kenji Tanaka',
-    date: 'Sep 28, 2023',
-    readTime: '8 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9-4PxdjUagNriQq3CX-TqOPDmW4Ky5cZ64zBFbiJO4joel7_lWy5rTLo8ftdkFK9Bu9X8YyIDagoknap_ptVQn3T8HHAlHAyN2hN43NBvA2LUzs6A-TqnD-z4b72e7wrmHuoM7hF52VvdwTeSt6WzXZ2-X31k032J8KZeKrhBFJA9qRa0h9QBMMUvR6vm6ZaShEOYG7-dy0tq0MqsJ3AWQhz9TPVSsvk8dfyonhI9cz19ZjNehxh7wL3Ws8-FZXt5y-_h3S31RGw',
-    featured: false,
-  },
-  {
-    slug: 'top-10-kanji-must-know',
-    title: 'Top 10 Kanji You Must Know as a Beginner',
-    excerpt: 'Start your Kanji journey right. These 10 essential characters appear everywhere in daily Japanese life.',
-    category: 'kanji',
-    author: 'Mike Ross',
-    date: 'Sep 20, 2023',
-    readTime: '12 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCxXDLx8EuPYFtEYzW8gH3szmsKxUArXX6qzcXk0xbjEV3kiZuxzqfvgQKYGPwGHFl7aOD5HDbo-9TqfMgTu7KVHUw_yLYYkLqwxXCiyM8Y90levni1LTy7Y2GIWAQKQRFhx_Bp16Iya3T_BIMcxnTmZzY9unbw-ikyXYGOhFh_3bwTd6-Ihnz4vIaEc7WVMHYYhSMd07J7hLnrvxPRswqkkuSWCtE3mU8jFO-L77TFh0wKid1fa6YvgLFdRa4eP5P2yyhW9QpmHzU',
-    featured: false,
-  },
-  {
-    slug: 'jlpt-n5-study-guide',
-    title: 'The Complete JLPT N5 Study Guide',
-    excerpt: 'Everything you need to pass the JLPT N5 — vocabulary lists, grammar points, and practice strategies.',
-    category: 'grammar',
-    author: 'Kenji Tanaka',
-    date: 'Sep 12, 2023',
-    readTime: '20 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKTOjwLg6_w1yfaHcr85LDjnelvNVPpFj6YGvg5G6EgYCzXOZPIvvX13ibrzS9IkDm_Js-TVLId2QQUgJeWKjiH6cyAE0gTZok0pubi4HRzTsVkRrLvQP0-dHBHIZLZLIvQyZSCGwUdecZFS6Z9Zccliyixh8dsdJ6KcU7UCxOtnIRMsnz4QVvNkMewSZQl44so22hIv7x7xy_umQH4lsRNKfJJMr49RKeeoDO2KvgYEUvU9Dtl0-Jqr231-a_a5iCSWkevqNO1xY',
-    featured: false,
-  },
-  {
-    slug: 'japanese-culture-etiquette',
-    title: 'Japanese Culture & Etiquette: Do\'s and Don\'ts',
-    excerpt: 'Avoid embarrassing mistakes in Japan. A guide to bowing, removing shoes, dining customs, and more.',
-    category: 'culture',
-    author: 'Yuki Sato',
-    date: 'Sep 1, 2023',
-    readTime: '11 min read',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCfpCPNCumt3xgbQjegNjx0KHsAIDC6k9zhIXIn2MRCAWokCyCsCNdKfJj9rzEfg_mtSugZSnRp8TNxJK6lkmNbWtPY_4gzPh_SyTxdXktFmkUZ6o-DiHBle7CZsCs_tTD9feNS-viJ4wbJFwwMQyVZJI8BxJh7efsndRtcD1AK1FmBrcjNTuTJb7KN9kWGhUnyafDc-Wus04Ko_E1xHHJb1swg9yN8UfBy-9WHHjJbtxT1T3X3H4Y_Op0z6gWsXKIxhxENXLCZcM4',
-    featured: false,
-  },
-];
-
-const TRENDING = [
-  { title: 'Mastering Japanese Particles', slug: 'mastering-japanese-particles', readTime: '15 min' },
-  { title: 'JLPT N5 Study Guide', slug: 'jlpt-n5-study-guide', readTime: '20 min' },
-  { title: 'Top 10 Kanji You Must Know', slug: 'top-10-kanji-must-know', readTime: '12 min' },
+  { label: 'All Posts', value: 'all' },
+  { label: 'Grammar', value: 'grammar' },
+  { label: 'Culture', value: 'culture' },
+  { label: 'Vocabulary', value: 'vocabulary' },
+  { label: 'Kanji', value: 'kanji' },
 ];
 
 const CATEGORY_COLORS = {
@@ -98,18 +24,35 @@ export function BlogListPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [email, setEmail] = useState('');
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const filtered = POSTS.filter((p) => {
-    const matchCat = activeCategory === 'all' || p.category === activeCategory;
-    const matchSearch =
-      !searchQuery ||
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const params = {};
+        if (activeCategory !== 'all') params.category = activeCategory;
+        if (searchQuery) params.search = searchQuery;
+        const { data } = await getPosts(params);
+        setPosts(data);
+      } catch (err) {
+        setError('Failed to load posts. Please try again.');
+        console.error('Fetch posts error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const featured = filtered.find((p) => p.featured);
-  const rest = filtered.filter((p) => !p.featured);
+    const debounce = setTimeout(fetchPosts, searchQuery ? 300 : 0);
+    return () => clearTimeout(debounce);
+  }, [activeCategory, searchQuery]);
+
+  const featured = posts.find((p) => p.featured);
+  const rest = posts.filter((p) => !p.featured);
+  const trending = posts.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -142,7 +85,6 @@ export function BlogListPage() {
                 }`}
               >
                 {cat.label}
-                <span className="ml-1.5 text-xs opacity-70">({cat.count})</span>
               </button>
             ))}
           </div>
@@ -153,8 +95,28 @@ export function BlogListPage() {
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Main Content */}
           <div className="flex-1 min-w-0">
+            {/* Loading State */}
+            {loading && (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+              <div className="text-center py-20">
+                <p className="text-red-500 text-lg mb-4">{error}</p>
+                <button
+                  onClick={() => setActiveCategory(activeCategory)}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
             {/* Featured Article */}
-            {featured && (
+            {!loading && !error && featured && (
               <Link to={`/blog/${featured.slug}`} className="group block mb-10">
                 <div className="rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-md transition-shadow">
                   <div
@@ -183,7 +145,7 @@ export function BlogListPage() {
             )}
 
             {/* Article Grid */}
-            <div className="grid sm:grid-cols-2 gap-6">
+            {!loading && !error && <div className="grid sm:grid-cols-2 gap-6">
               {rest.map((post) => (
                 <Link key={post.slug} to={`/blog/${post.slug}`} className="group block">
                   <div className="rounded-xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-md transition-all h-full flex flex-col">
@@ -207,9 +169,9 @@ export function BlogListPage() {
                   </div>
                 </Link>
               ))}
-            </div>
+            </div>}
 
-            {filtered.length === 0 && (
+            {!loading && !error && posts.length === 0 && (
               <div className="text-center py-20">
                 <p className="text-muted-foreground text-lg">No articles found matching your search.</p>
               </div>
@@ -248,7 +210,7 @@ export function BlogListPage() {
                       }`}
                     >
                       <span>{cat.label}</span>
-                      <span className="text-xs font-medium bg-muted px-2 py-0.5 rounded-full">{cat.count}</span>
+                      <ChevronRight size={14} />
                     </button>
                   </li>
                 ))}
@@ -262,7 +224,7 @@ export function BlogListPage() {
                 Trending Now
               </h3>
               <ul className="space-y-4">
-                {TRENDING.map((item, i) => (
+                {trending.map((item, i) => (
                   <li key={item.slug}>
                     <Link to={`/blog/${item.slug}`} className="flex items-start gap-3 group">
                       <span className="text-2xl font-serif font-bold text-primary/30 leading-none mt-0.5">
@@ -273,7 +235,7 @@ export function BlogListPage() {
                           {item.title}
                         </p>
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock size={11} />{item.readTime}
+                          <Clock size={11} />{item.readTime || 'Quick read'}
                         </span>
                       </div>
                     </Link>
