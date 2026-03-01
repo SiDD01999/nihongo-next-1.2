@@ -2,6 +2,7 @@ import React from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // Landing page sections
 import { Header } from "@/components/Header";
@@ -36,8 +37,10 @@ function LandingPage() {
   );
 }
 
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
 function App() {
-  return (
+  const content = (
     <BrowserRouter>
       <Toaster position="top-center" richColors />
       <Routes>
@@ -49,6 +52,16 @@ function App() {
       </Routes>
     </BrowserRouter>
   );
+
+  if (GOOGLE_CLIENT_ID) {
+    return (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        {content}
+      </GoogleOAuthProvider>
+    );
+  }
+
+  return content;
 }
 
 export default App;
