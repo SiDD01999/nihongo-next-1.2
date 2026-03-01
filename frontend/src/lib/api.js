@@ -5,6 +5,7 @@ const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 const api = axios.create({
   baseURL: `${API_BASE}/api`,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 30000, // 30 second timeout for Render cold starts
 });
 
 // Attach token to every request if available
@@ -15,6 +16,27 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Retry logic for failed requests (handles Render free-tier cold starts)
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error.config;
+    // Only retry GET requests, max 2 retries
+    if (
+      config &&
+      config.method === 'get' &&
+      (!config._retryCount || config._retryCount < 2) &&
+      (!error.response || error.response.status >= 500)
+    ) {
+      config._retryCount = (config._retryCount || 0) + 1;
+      // Wait before retry: 3s first, 5s second
+      await new Promise((r) => setTimeout(r, config._retryCount === 1 ? 3000 : 5000));
+      return api(config);
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Posts
 export const getPosts = (params) => api.get('/posts', { params });

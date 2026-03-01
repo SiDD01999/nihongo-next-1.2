@@ -116,20 +116,23 @@ export function BlogListPage() {
           <div className="flex-1 min-w-0">
             {/* Loading State */}
             {loading && (
-              <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <p className="text-muted-foreground text-sm">Loading articles...</p>
+                <p className="text-muted-foreground/60 text-xs">Server may take a moment to wake up</p>
               </div>
             )}
 
             {/* Error State */}
             {error && !loading && (
               <div className="text-center py-20 animate-fade-in-up">
-                <p className="text-red-500 text-lg mb-4">{error}</p>
+                <p className="text-foreground text-lg font-serif font-bold mb-2">Couldn't reach the server</p>
+                <p className="text-muted-foreground text-sm mb-4">The server might be waking up. Please try again in a few seconds.</p>
                 <button
-                  onClick={() => setActiveCategory(activeCategory)}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium active:scale-95 transition-transform"
+                  onClick={() => { setError(''); setActiveCategory(activeCategory === 'all' ? 'all' : activeCategory); window.location.reload(); }}
+                  className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-bold active:scale-95 transition-transform"
                 >
-                  Retry
+                  Try Again
                 </button>
               </div>
             )}
