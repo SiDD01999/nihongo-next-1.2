@@ -1,14 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, X, LogOut, PenSquare, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const isLanding = location.pathname === '/';
+
+  // Read auth state from localStorage
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('nn_user')); } catch { return null; }
+  });
+
+  // Listen for storage changes (login/logout in other tabs)
+  useEffect(() => {
+    const sync = () => {
+      try { setUser(JSON.parse(localStorage.getItem('nn_user'))); } catch { setUser(null); }
+    };
+    window.addEventListener('storage', sync);
+    // Also listen for custom event from same-tab login
+    window.addEventListener('auth-change', sync);
+    return () => {
+      window.removeEventListener('storage', sync);
+      window.removeEventListener('auth-change', sync);
+    };
+  }, []);
+
+  // Re-check auth on route change (covers same-tab login redirect)
+  useEffect(() => {
+    try { setUser(JSON.parse(localStorage.getItem('nn_user'))); } catch { setUser(null); }
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +43,27 @@ export const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('nn_token');
+    localStorage.removeItem('nn_user');
+    setUser(null);
+    setShowDropdown(false);
+    setIsMobileMenuOpen(false);
+    window.dispatchEvent(new Event('auth-change'));
+    navigate('/');
+  };
 
   const scrollToSection = (id) => {
     if (!isLanding) {
@@ -39,6 +86,12 @@ export const Header = () => {
     { label: 'Testimonials', id: 'testimonials' },
     { label: 'Contact', id: 'contact' },
   ];
+
+  const isAdmin = user?.role === 'ADMIN';
+
+  const initials = user
+    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : '';
 
   return (
     <header
@@ -92,7 +145,7 @@ export const Header = () => {
             </Link>
           </nav>
 
-          {/* Desktop CTA Buttons */}
+          {/* Desktop CTA / User Menu */}
           <div className="hidden md:flex items-center space-x-3">
             <Button
               variant="outline"
@@ -101,16 +154,66 @@ export const Header = () => {
             >
               View Courses
             </Button>
-            <Link to="/login">
-              <Button variant="ghost" className="hover:text-primary">
-                Log In
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                Sign Up
-              </Button>
-            </Link>
+
+            {user ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-muted transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                    {initials}
+                  </div>
+                  <span className="text-sm font-medium text-foreground max-w-[120px] truncate">
+                    {user.name}
+                  </span>
+                </button>
+
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-lg py-2 z-50">
+                    <div className="px-4 py-2 border-b border-border">
+                      <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      {isAdmin && (
+                        <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          Admin
+                        </span>
+                      )}
+                    </div>
+                    {isAdmin && (
+                      <Link
+                        to="/admin/posts/new"
+                        onClick={() => setShowDropdown(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                      >
+                        <PenSquare size={15} />
+                        Write a Post
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut size={15} />
+                      Log Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost" className="hover:text-primary">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -160,14 +263,45 @@ export const Header = () => {
               >
                 View Courses
               </Button>
-              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button variant="outline" className="w-full py-3">Log In</Button>
-              </Link>
-              <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3">
-                  Sign Up
-                </Button>
-              </Link>
+
+              {user ? (
+                <>
+                  <div className="flex items-center gap-3 px-3 py-3 bg-muted/50 rounded-lg">
+                    <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                      {initials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </div>
+                  {isAdmin && (
+                    <Link to="/admin/posts/new" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full py-3">
+                        <PenSquare size={15} className="mr-2" /> Write a Post
+                      </Button>
+                    </Link>
+                  )}
+                  <Button
+                    variant="outline"
+                    onClick={handleLogout}
+                    className="w-full py-3 text-red-600 border-red-200 hover:bg-red-50"
+                  >
+                    <LogOut size={15} className="mr-2" /> Log Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full py-3">Log In</Button>
+                  </Link>
+                  <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>

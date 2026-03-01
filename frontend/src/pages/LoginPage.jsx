@@ -18,6 +18,7 @@ export function LoginPage() {
       const { data } = await googleLogin(credentialResponse.credential);
       localStorage.setItem('nn_token', data.token);
       localStorage.setItem('nn_user', JSON.stringify(data.user));
+      window.dispatchEvent(new Event('auth-change'));
       navigate('/blog');
     } catch (err) {
       setError(err.response?.data?.error || 'Google login failed');
@@ -42,6 +43,7 @@ export function LoginPage() {
       const { data } = await login(form);
       localStorage.setItem('nn_token', data.token);
       localStorage.setItem('nn_user', JSON.stringify(data.user));
+      window.dispatchEvent(new Event('auth-change'));
       navigate('/blog');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Login failed');

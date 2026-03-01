@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Search, Clock, Calendar, ChevronRight, BookOpen, TrendingUp, Mail, Loader2 } from 'lucide-react';
+import { Search, Clock, Calendar, ChevronRight, BookOpen, TrendingUp, Mail, Loader2, PenSquare } from 'lucide-react';
 import { getPosts } from '@/lib/api';
 
 const CATEGORIES = [
@@ -27,6 +27,11 @@ export function BlogListPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const user = (() => {
+    try { return JSON.parse(localStorage.getItem('nn_user')); } catch { return null; }
+  })();
+  const isAdmin = user?.role === 'ADMIN';
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -71,6 +76,19 @@ export function BlogListPage() {
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Grammar guides, cultural insights, vocabulary tips, and JLPT prep — all written by expert instructors.
           </p>
+
+          {/* Admin Write Button */}
+          {isAdmin && (
+            <div className="mt-6">
+              <Link
+                to="/admin/posts/new"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-colors shadow-sm"
+              >
+                <PenSquare size={16} />
+                Write a New Post
+              </Link>
+            </div>
+          )}
 
           {/* Category Filters */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
