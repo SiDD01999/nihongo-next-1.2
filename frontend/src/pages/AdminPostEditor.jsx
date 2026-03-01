@@ -60,7 +60,7 @@ export function AdminPostEditor() {
         .catch(() => setError('Failed to load post.'))
         .finally(() => setLoading(false));
     }
-  }, [slug, isEditing]);
+  }, [slug, isEditing, navigate, user]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
